@@ -32,36 +32,34 @@ Point2D project(Vec3 p, double cx, double cy, double fov) {
 }
 
 /* ═══════════════════════════════════════════════
-   SHAPE 1 — CUBE
+   SHAPE 2 — PYRAMID  (square base + apex)
    ═══════════════════════════════════════════════ */
-#define CUBE_V 8
-#define CUBE_E 12
-static const Vec3 CUBE_VERTS[CUBE_V] = {
-    {-70,-70,-70},{70,-70,-70},{70,70,-70},{-70,70,-70},
-    {-70,-70, 70},{70,-70, 70},{70,70, 70},{-70,70, 70}
+#define PYR_V 5
+#define PYR_E 8
+static const Vec3 PYR_VERTS[PYR_V] = {
+    {-70, 70,-70},{ 70, 70,-70},{ 70, 70, 70},{-70, 70, 70},  /* base */
+    {  0,-90,  0}                                               /* apex */
 };
-static const int CUBE_EDGES[CUBE_E][2] = {
-    {0,1},{1,2},{2,3},{3,0},
-    {4,5},{5,6},{6,7},{7,4},
-    {0,4},{1,5},{2,6},{3,7}
+static const int PYR_EDGES[PYR_E][2] = {
+    {0,1},{1,2},{2,3},{3,0},   /* base square */
+    {0,4},{1,4},{2,4},{3,4}    /* side edges  */
 };
 
-void draw_cube(Display *dpy, Pixmap buf, GC gc,
-               double cx, double cy, double ax, double ay, double az)
+void draw_pyramid(Display *dpy, Pixmap buf, GC gc,
+                  double cx, double cy, double ax, double ay, double az)
 {
-    XSetForeground(dpy, gc, 0x00FFFF);   /* cyan */
-    Point2D p[CUBE_V];
-    for (int i = 0; i < CUBE_V; i++) {
-        Vec3 v = CUBE_VERTS[i];
+    XSetForeground(dpy, gc, 0xFF8800);   /* orange */
+    Point2D p[PYR_V];
+    for (int i = 0; i < PYR_V; i++) {
+        Vec3 v = PYR_VERTS[i];
         v = rotX(v,ax); v = rotY(v,ay); v = rotZ(v,az);
         p[i] = project(v, cx, cy, 350.0);
     }
-    for (int e = 0; e < CUBE_E; e++)
+    for (int e = 0; e < PYR_E; e++)
         XDrawLine(dpy, buf, gc,
-                  p[CUBE_EDGES[e][0]].x, p[CUBE_EDGES[e][0]].y,
-                  p[CUBE_EDGES[e][1]].x, p[CUBE_EDGES[e][1]].y);
+                  p[PYR_EDGES[e][0]].x, p[PYR_EDGES[e][0]].y,
+                  p[PYR_EDGES[e][1]].x, p[PYR_EDGES[e][1]].y);
 }
-
 
 /* ═══════════════════════════════════════════════
    LABEL helper
@@ -133,10 +131,10 @@ int main(void)
 
 
         /* ── Draw each shape in its own third of the window ── */
-        draw_cube(dpy, buf, buf_gc, WIN_W/2, WIN_H/2, ax, ay, az);
+        draw_pyramid(dpy, buf, buf_gc, WIN_W/2, WIN_H/2, ax, ay, az);
 
         /* Labels */
-        label(dpy, buf, buf_gc, WIN_W/2 - 20, WIN_H - 30, "CUBE", 0x00FFFF);
+        label(dpy, buf, buf_gc, WIN_W/2 - 30, WIN_H - 30, "PYRAMID", 0xFF8800);
 
         /* Flip buffer */
         XCopyArea(dpy, buf, win, gc, 0, 0, WIN_W, WIN_H, 0, 0);
